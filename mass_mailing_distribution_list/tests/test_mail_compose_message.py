@@ -36,6 +36,7 @@ class TestMailComposeMessage(SharedSetupTransactionCase):
         super(TestMailComposeMessage, self).setUp()
 
         self.distri_list_obj = self.registry['distribution.list']
+        self.distri_list_line_obj = self.registry['distribution.list.line']
         self.mass_mailing_obj = self.registry['mail.mass_mailing']
         self.mail_compose_message_obj = self.registry['mail.compose.message']
         self.dst_model_id = self.registry('ir.model').search(
@@ -90,10 +91,20 @@ class TestMailComposeMessage(SharedSetupTransactionCase):
         `distribution_list_id`
         """
         cr, uid, context = self.cr, self.uid, {}
+
+        # distribution list line
+        vals = {
+            'name': '%s' % uuid4(),
+            'domain': '[("id", "!=", 0)]',
+        }
+        dll_id = self.distri_list_line_obj.create(
+            cr, uid, vals, context=context)
+
         # distribution list
         vals = {
             'name': '%s' % uuid4(),
             'dst_model_id': self.dst_model_id,
+            'to_include_distribution_list_line_ids': [(6, 0, [dll_id])]
         }
         distribution_list_id = self.distri_list_obj.create(
             cr, uid, vals, context=context)
